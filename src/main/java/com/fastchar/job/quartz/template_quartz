@@ -22,7 +22,7 @@ org.quartz.threadPool.threadsInheritContextClassLoaderOfInitializingThread=true
 #持久化配置  
 org.quartz.jobStore.class=org.quartz.impl.jdbcjobstore.JobStoreTX
 org.quartz.jobStore.driverDelegateClass=org.quartz.impl.jdbcjobstore.StdJDBCDelegate
-org.quartz.jobStore.useProperties=true
+org.quartz.jobStore.useProperties=false
 #数据库表前缀  
 org.quartz.jobStore.tablePrefix=QRTZ_
 org.quartz.jobStore.dataSource=qzDS

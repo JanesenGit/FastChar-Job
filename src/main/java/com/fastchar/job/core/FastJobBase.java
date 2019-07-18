@@ -1,54 +1,47 @@
 package com.fastchar.job.core;
 
 import com.fastchar.core.FastChar;
+import com.fastchar.job.FastJob;
 import com.fastchar.job.exceptions.FastJobException;
-import com.fastchar.job.interfaces.IFastJobScheduler;
-import com.fastchar.utils.FastDateUtils;
-import com.fastchar.utils.FastNumberUtils;
 import com.fastchar.utils.FastStringUtils;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
-public abstract class FastJobBase<T> {
+public abstract class FastJobBase<T> implements Serializable {
+
+
+    private static final long serialVersionUID = -847467329736585898L;
 
     public abstract void run();
-
-
 
     public boolean start() {
         if (FastStringUtils.isEmpty(getCode())) {
             throw new FastJobException("任务的唯一编号[code]不可为空！");
         }
 
-        if (FastStringUtils.isEmpty(getDateTime())) {
+        if (getDateTime() == null) {
             setDateTime(new Date());
         }
-        FastChar.getOverrides().singleInstance(IFastJobScheduler.class).startJob(this);
+        FastJob.startJob(this);
         return true;
     }
 
 
     private String code;
-    private String dateTime;
+    private Date dateTime;
     private int whileCount;
     private int whileInterval;//循环的实际间隔 单位秒
     private int runCount;
 
-    public String getDateTime() {
+    public Date getDateTime() {
         return dateTime;
     }
 
-    public T setDateTime(String dateTime) {
+    public FastJobBase<T> setDateTime(Date dateTime) {
         this.dateTime = dateTime;
-        return (T) this;
-    }
-
-    public T setDateTime(Date dateTime) {
-        this.dateTime = FastDateUtils.format(dateTime, "yyyy-MM-dd HH:mm:ss");
-        return (T) this;
+        return this;
     }
 
     public int getWhileCount() {
@@ -93,12 +86,9 @@ public abstract class FastJobBase<T> {
     }
 
     public final Date computeNextDateTime() {
-        Date startDate = FastDateUtils.parse(getDateTime(), "yyyy-MM-dd HH:mm:ss");
         Calendar calendar = Calendar.getInstance();
-        calendar.setTime(startDate);
         calendar.add(Calendar.SECOND, getWhileInterval());
         return calendar.getTime();
     }
-
 
 }

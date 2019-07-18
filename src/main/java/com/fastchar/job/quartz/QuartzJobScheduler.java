@@ -26,6 +26,9 @@ import java.util.Set;
 public class QuartzJobScheduler implements IFastJobScheduler {
     private static final SchedulerFactory schedulerFactory = new StdSchedulerFactory();
     private static final String QuartzTable = "QRTZ_TRIGGERS";
+    private static final String GROUP_NAME = "FastCharJobGroup";
+    private static final String TRIGGER_GROUP_NAME = "FastCharJobTriggerGroup";
+    private static final String TRIGGER_SUFFIX = "FastCharTrigger";
 
     public void onDatabaseFinish() throws Exception {
         if (FastChar.getConstant().isTestEnvironment()) {
@@ -61,8 +64,6 @@ public class QuartzJobScheduler implements IFastJobScheduler {
                         URL url = QuartzJobScheduler.class.getResource(sqlFile);
                         FastScriptRunner scriptRunner = new FastScriptRunner(FastChar.getDb().getConnection());
                         scriptRunner.setLogWriter(null);
-                        scriptRunner.setSendFullScript(true);
-                        scriptRunner.setRemoveCRs(true);
                         scriptRunner.runScript(new InputStreamReader(url.openStream()));
                         scriptRunner.closeConnection();
                     }
@@ -88,41 +89,37 @@ public class QuartzJobScheduler implements IFastJobScheduler {
         }
     }
 
-
-
     public void startJob(FastJobBase job) {
         try {
             if (job == null) {
                 return;
             }
-            if (FastStringUtils.isEmpty(job.getDateTime())) {
+            if (job.getDateTime() == null) {
+                if (FastChar.getConfig(FastQuartzConfig.class).isDebug()) {
+                    FastChar.getLog().error("任务：" + job.getCode() + "启动失败！任务日期为空！");
+                }
                 return;
             }
             String jobName = job.getCode();
-            String jobGroupName = "FastCharJob";
-            String triggerName = job.getCode() + "Trigger";
-            String triggerGroupName = "FastCharTrigger";
+            String triggerName = job.getCode() + TRIGGER_SUFFIX;
 
             Scheduler scheduler = schedulerFactory.getScheduler();
-
             removeJob(job.getCode());
 
-            JobDetail jobDetail = JobBuilder.newJob(QuartzJob.class).withIdentity(jobName, jobGroupName).build();
-            jobDetail.getJobDataMap().put("job", job.toJson());
-            jobDetail.getJobDataMap().put("class", job.getClass().getName());
-
-            Date startDate = FastDateUtils.parse(job.getDateTime(), "yyyy-MM-dd HH:mm:ss");
+            JobDetail jobDetail = JobBuilder.newJob(QuartzJob.class).withIdentity(jobName, GROUP_NAME).build();
+            jobDetail.getJobDataMap().put("job", job);
+            jobDetail.getJobDataMap().put("code", job.getCode());
 
             TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger();
-            triggerBuilder.withIdentity(triggerName, triggerGroupName);
-            triggerBuilder.startAt(startDate);
-            triggerBuilder.endAt(startDate);
-            scheduler.scheduleJob(jobDetail, triggerBuilder.build());
+            triggerBuilder.withIdentity(triggerName, TRIGGER_GROUP_NAME);
+            triggerBuilder.startAt(job.getDateTime());
+            triggerBuilder.endAt(job.getDateTime());
+            Date date = scheduler.scheduleJob(jobDetail, triggerBuilder.build());
             if (!scheduler.isShutdown()) {
                 scheduler.start();
             }
             if (FastChar.getConfig(FastQuartzConfig.class).isDebug()) {
-                FastChar.getLog().info("Quartz添加任务：" + job.getCode());
+                FastChar.getLog().info("Quartz添加【" + FastDateUtils.format(date, "yyyy-MM-dd HH:mm:ss") + "】【" + job.getClass().getName() + "】任务：" + job.toJson());
             }
         } catch (SchedulerException e) {
             e.printStackTrace();
@@ -131,10 +128,9 @@ public class QuartzJobScheduler implements IFastJobScheduler {
 
     public boolean existJob(String code) {
         try {
-            String triggerName = code + "Trigger";
-            String triggerGroupName = "FastCharTrigger";
+            String triggerName = code +TRIGGER_SUFFIX;
             Scheduler scheduler = schedulerFactory.getScheduler();
-            TriggerKey triggerKey = TriggerKey.triggerKey(triggerName, triggerGroupName);
+            TriggerKey triggerKey = TriggerKey.triggerKey(triggerName, TRIGGER_GROUP_NAME);
             return scheduler.checkExists(triggerKey);
         } catch (SchedulerException e) {
             e.printStackTrace();
@@ -144,18 +140,15 @@ public class QuartzJobScheduler implements IFastJobScheduler {
 
     public void removeJob(String code) {
         try {
-            String jobGroupName = "FastCharJob";
-            String triggerName = code + "Trigger";
-            String triggerGroupName = "FastCharTrigger";
+            String triggerName = code + TRIGGER_SUFFIX;
 
             Scheduler scheduler = schedulerFactory.getScheduler();
-            TriggerKey triggerKey = TriggerKey.triggerKey(triggerName, triggerGroupName);
+            TriggerKey triggerKey = TriggerKey.triggerKey(triggerName, TRIGGER_GROUP_NAME);
             scheduler.pauseTrigger(triggerKey);
             scheduler.unscheduleJob(triggerKey);
-            if (scheduler.deleteJob(JobKey.jobKey(code, jobGroupName))) {
-                if (FastChar.getConfig(FastQuartzConfig.class).isDebug()) {
-                    FastChar.getLog().info("Quartz移除任务：" + code);
-                }
+            scheduler.deleteJob(JobKey.jobKey(code, GROUP_NAME));
+            if (FastChar.getConfig(FastQuartzConfig.class).isDebug()) {
+                FastChar.getLog().info("Quartz移除任务：" + code);
             }
         } catch (SchedulerException e) {
             e.printStackTrace();
