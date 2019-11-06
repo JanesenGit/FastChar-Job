@@ -35,8 +35,8 @@ public class QuartzJobScheduler implements IFastJobScheduler {
             return;
         }
         FastQuartzConfig config = FastChar.getConfig(FastQuartzConfig.class);
+        File quartzConfig = new File(FastChar.getPath().getClassRootPath(), "quartz.properties");
         if (config.isUseDatabase()) {
-            File quartzConfig = new File(FastChar.getPath().getClassRootPath(), "quartz.properties");
             if (!quartzConfig.exists()) {
                 if (config.isDebug()) {
                     FastChar.getLog().info("Quartz自动生成配置文件！");
@@ -71,6 +71,8 @@ public class QuartzJobScheduler implements IFastJobScheduler {
                     recovery();
                 }
             }
+        }else{
+            FastFileUtils.deleteQuietly(quartzConfig);
         }
     }
 

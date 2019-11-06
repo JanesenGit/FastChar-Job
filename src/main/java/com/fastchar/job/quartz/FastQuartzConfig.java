@@ -1,5 +1,6 @@
 package com.fastchar.job.quartz;
 
+import com.fastchar.core.FastChar;
 import com.fastchar.interfaces.IFastConfig;
 
 public class FastQuartzConfig implements IFastConfig {
@@ -7,6 +8,14 @@ public class FastQuartzConfig implements IFastConfig {
     private boolean debug;
     private boolean useDatabase;
     private boolean createTable;
+
+    public FastQuartzConfig() {
+        FastChar.getOverrides().add(QuartzJobScheduler.class);
+        FastChar.getObservable().addObserver(QuartzJobScheduler.class);
+        if (FastChar.getConstant().isDebug()) {
+            FastChar.getLog().info("已启用Quartz任务调度器！");
+        }
+    }
 
     public boolean isCreateTable() {
         return createTable;

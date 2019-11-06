@@ -6,13 +6,14 @@ import com.fastchar.job.interfaces.IFastJobScheduler;
 
 public final  class FastJob {
 
-
     public static void startJob(FastJobBase job) {
         FastChar.getOverrides().singleInstance(IFastJobScheduler.class).startJob(job);
     }
 
-    public static void removeJob(String code) {
-        FastChar.getOverrides().singleInstance(IFastJobScheduler.class).removeJob(code);
+    public static void removeJob(String... codes) {
+        for (String code : codes) {
+            FastChar.getOverrides().singleInstance(IFastJobScheduler.class).removeJob(code);
+        }
     }
 
 
