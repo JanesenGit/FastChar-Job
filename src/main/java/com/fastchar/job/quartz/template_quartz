@@ -1,7 +1,7 @@
 #===============================================================
 #配置主调度程序的属性
 #===============================================================
-org.quartz.scheduler.instanceName = DefaultQuartzScheduler
+org.quartz.scheduler.instanceName = FastCharQuartzScheduler
 org.quartz.scheduler.rmi.export = false
 org.quartz.scheduler.rmi.proxy = false
 org.quartz.scheduler.wrapJobExecutionInUserTransaction = false
@@ -23,6 +23,7 @@ org.quartz.threadPool.threadsInheritContextClassLoaderOfInitializingThread=true
 org.quartz.jobStore.class=org.quartz.impl.jdbcjobstore.JobStoreTX
 org.quartz.jobStore.driverDelegateClass=org.quartz.impl.jdbcjobstore.StdJDBCDelegate
 org.quartz.jobStore.useProperties=false
+org.quartz.jobStore.acquireTriggersWithinLock=true
 #数据库表前缀  
 org.quartz.jobStore.tablePrefix=QRTZ_
 org.quartz.jobStore.dataSource=qzDS

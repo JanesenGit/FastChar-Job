@@ -10,7 +10,7 @@ import org.quartz.JobExecutionContext;
 public class QuartzJob implements Job {
     public void execute(JobExecutionContext jobExecutionContext) {
         JobDataMap jobDataMap = jobExecutionContext.getJobDetail().getJobDataMap();
-        FastJobBase fastJob = (FastJobBase) jobDataMap.get("job");
+        FastJobBase<?> fastJob = (FastJobBase<?>) jobDataMap.get("job");
         if (fastJob == null) {
             if (FastChar.getConfig(FastQuartzConfig.class).isDebug()) {
                 FastChar.getLog().error("Quartz失败任务：" + jobDataMap.get("code"));
@@ -20,16 +20,20 @@ public class QuartzJob implements Job {
         if (FastChar.getConfig(FastQuartzConfig.class).isDebug()) {
             FastChar.getLog().info("Quartz执行【" + fastJob.getClass().getName() + "】任务：" + fastJob.toJson());
         }
-        fastJob.run();
+        try {
+            fastJob.setRunCount(fastJob.getRunCount() + 1);
+            fastJob.run();
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
         if (fastJob.getWhileCount() != -1) {
-            int runCount = fastJob.getRunCount();
-            if (runCount + 1 >= fastJob.getWhileCount()) {
+            if (fastJob.getRunCount() >= fastJob.getWhileCount()) {
                 if (FastChar.getConfig(FastQuartzConfig.class).isDebug()) {
                     FastChar.getLog().warn("Quartz停止任务：" + fastJob.getCode());
                 }
+                fastJob.stop();
                 return;
             }
-            fastJob.setRunCount(runCount + 1);
         }
         fastJob.setDateTime(fastJob.computeNextDateTime());
         fastJob.start();

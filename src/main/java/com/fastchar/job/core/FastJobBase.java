@@ -3,6 +3,8 @@ package com.fastchar.job.core;
 import com.fastchar.core.FastChar;
 import com.fastchar.job.FastJob;
 import com.fastchar.job.exceptions.FastJobException;
+import com.fastchar.job.interfaces.IFastJobScheduler;
+import com.fastchar.utils.FastDateUtils;
 import com.fastchar.utils.FastStringUtils;
 
 import java.io.Serializable;
@@ -28,20 +30,24 @@ public abstract class FastJobBase<T> implements Serializable {
         return true;
     }
 
+    public void stop() {
+    }
+
 
     private String code;
     private Date dateTime;
     private int whileCount;
     private int whileInterval;//循环的实际间隔 单位秒
+    private int iterateInterval;//递增时间间隔 单位秒
     private int runCount;
 
     public Date getDateTime() {
         return dateTime;
     }
 
-    public FastJobBase<T> setDateTime(Date dateTime) {
+    public T setDateTime(Date dateTime) {
         this.dateTime = dateTime;
-        return this;
+        return (T) this;
     }
 
     public int getWhileCount() {
@@ -81,13 +87,22 @@ public abstract class FastJobBase<T> implements Serializable {
         return (T) this;
     }
 
-    public final String toJson() {
+    public int getIterateInterval() {
+        return iterateInterval;
+    }
+
+    public T setIterateInterval(int iterateInterval) {
+        this.iterateInterval = iterateInterval;
+        return (T) this;
+    }
+
+    public String toJson() {
         return FastChar.getJson().toJson(this);
     }
 
     public final Date computeNextDateTime() {
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.SECOND, getWhileInterval());
+        calendar.add(Calendar.SECOND, getWhileInterval() + getRunCount() * getIterateInterval());
         return calendar.getTime();
     }
 

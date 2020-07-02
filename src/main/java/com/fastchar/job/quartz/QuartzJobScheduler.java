@@ -10,7 +10,6 @@ import com.fastchar.job.core.FastJobBase;
 import com.fastchar.job.interfaces.IFastJobScheduler;
 import com.fastchar.utils.FastDateUtils;
 import com.fastchar.utils.FastFileUtils;
-import com.fastchar.utils.FastStringUtils;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.impl.matchers.GroupMatcher;
@@ -26,11 +25,11 @@ import java.util.Set;
 public class QuartzJobScheduler implements IFastJobScheduler {
     private static final SchedulerFactory schedulerFactory = new StdSchedulerFactory();
     private static final String QuartzTable = "QRTZ_TRIGGERS";
-    private static final String GROUP_NAME = "FastCharJobGroup";
+    private static final String JOB_GROUP_NAME = "FastCharJobGroup";
     private static final String TRIGGER_GROUP_NAME = "FastCharJobTriggerGroup";
     private static final String TRIGGER_SUFFIX = "FastCharTrigger";
 
-    public void onDatabaseFinish() throws Exception {
+    public void onWebReady() throws Exception {
         if (FastChar.getConstant().isTestEnvironment()) {
             return;
         }
@@ -50,9 +49,10 @@ public class QuartzJobScheduler implements IFastJobScheduler {
                 for (FastTableInfo<?> table : fastDatabaseInfo.getTables()) {
                     if (table.getName().equalsIgnoreCase(QuartzTable)) {
                         hasQuartzTable = true;
+                        break;
                     }
                 }
-                if (!hasQuartzTable ) {
+                if (!hasQuartzTable) {
                     if (config.isCreateTable()) {
                         if (config.isDebug()) {
                             FastChar.getLog().info("Quartz自动创建表格！");
@@ -67,23 +67,23 @@ public class QuartzJobScheduler implements IFastJobScheduler {
                         scriptRunner.runScript(new InputStreamReader(url.openStream()));
                         scriptRunner.closeConnection();
                     }
-                }else{
+                } else {
                     recovery();
                 }
             }
-        }else{
+        } else {
             FastFileUtils.deleteQuietly(quartzConfig);
         }
     }
 
     public void onWebStop() {
         try {
-            for (Scheduler allScheduler : schedulerFactory.getAllSchedulers()) {
-                if (!allScheduler.isShutdown()) {
-                    allScheduler.shutdown();
-                    if (FastChar.getConfig(FastQuartzConfig.class).isDebug()) {
-                        FastChar.getLog().info("已停止Quartz任务！");
-                    }
+            Scheduler scheduler = schedulerFactory.getScheduler();
+            scheduler.pauseAll();
+            if (!scheduler.isShutdown()) {
+                scheduler.shutdown();
+                if (FastChar.getConfig(FastQuartzConfig.class).isDebug()) {
+                    FastChar.getLog().info("已停止Quartz任务！");
                 }
             }
         } catch (SchedulerException e) {
@@ -91,7 +91,7 @@ public class QuartzJobScheduler implements IFastJobScheduler {
         }
     }
 
-    public void startJob(FastJobBase job) {
+    public void startJob(FastJobBase<?> job) {
         try {
             if (job == null) {
                 return;
@@ -108,14 +108,13 @@ public class QuartzJobScheduler implements IFastJobScheduler {
             Scheduler scheduler = schedulerFactory.getScheduler();
             removeJob(job.getCode());
 
-            JobDetail jobDetail = JobBuilder.newJob(QuartzJob.class).withIdentity(jobName, GROUP_NAME).build();
+            JobDetail jobDetail = JobBuilder.newJob(QuartzJob.class).withIdentity(jobName, JOB_GROUP_NAME).build();
             jobDetail.getJobDataMap().put("job", job);
             jobDetail.getJobDataMap().put("code", job.getCode());
 
             TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger();
             triggerBuilder.withIdentity(triggerName, TRIGGER_GROUP_NAME);
             triggerBuilder.startAt(job.getDateTime());
-            triggerBuilder.endAt(job.getDateTime());
             Date date = scheduler.scheduleJob(jobDetail, triggerBuilder.build());
             if (!scheduler.isShutdown()) {
                 scheduler.start();
@@ -130,7 +129,7 @@ public class QuartzJobScheduler implements IFastJobScheduler {
 
     public boolean existJob(String code) {
         try {
-            String triggerName = code +TRIGGER_SUFFIX;
+            String triggerName = code + TRIGGER_SUFFIX;
             Scheduler scheduler = schedulerFactory.getScheduler();
             TriggerKey triggerKey = TriggerKey.triggerKey(triggerName, TRIGGER_GROUP_NAME);
             return scheduler.checkExists(triggerKey);
@@ -143,13 +142,14 @@ public class QuartzJobScheduler implements IFastJobScheduler {
     public void removeJob(String code) {
         try {
             String triggerName = code + TRIGGER_SUFFIX;
-
             Scheduler scheduler = schedulerFactory.getScheduler();
             TriggerKey triggerKey = TriggerKey.triggerKey(triggerName, TRIGGER_GROUP_NAME);
+            boolean checkExists = scheduler.checkExists(triggerKey);
             scheduler.pauseTrigger(triggerKey);
             scheduler.unscheduleJob(triggerKey);
-            scheduler.deleteJob(JobKey.jobKey(code, GROUP_NAME));
-            if (FastChar.getConfig(FastQuartzConfig.class).isDebug()) {
+            JobKey jobKey = JobKey.jobKey(code, JOB_GROUP_NAME);
+            scheduler.deleteJob(jobKey);
+            if (FastChar.getConfig(FastQuartzConfig.class).isDebug() && checkExists) {
                 FastChar.getLog().info("Quartz移除任务：" + code);
             }
         } catch (SchedulerException e) {
@@ -167,6 +167,7 @@ public class QuartzJobScheduler implements IFastJobScheduler {
                 scheduler.rescheduleJob(triggerKey, trigger);
             }
             scheduler.start();
+            scheduler.resumeAll();
             if (FastChar.getConfig(FastQuartzConfig.class).isDebug()) {
                 FastChar.getLog().info("Quartz已还原" + triggerKeys.size() + "条历史任务！");
             }
