@@ -1,8 +1,10 @@
 package com.fastchar.job.quartz;
 
+import com.fastchar.annotation.AFastClassFind;
 import com.fastchar.core.FastChar;
 import com.fastchar.interfaces.IFastConfig;
 
+@AFastClassFind(value = "org.quartz.impl.StdSchedulerFactory", url = "https://mvnrepository.com/artifact/org.quartz-scheduler/quartz")
 public class FastQuartzConfig implements IFastConfig {
 
     private boolean debug;

@@ -7,8 +7,8 @@ IF EXISTS (SELECT * FROM sys.all_objects WHERE object_id = OBJECT_ID(N'[dbo].[QR
 
 CREATE TABLE [dbo].[QRTZ_BLOB_TRIGGERS] (
   [SCHED_NAME] nvarchar(120) COLLATE Chinese_PRC_CI_AS  NOT NULL,
-  [TRIGGER_NAME] nvarchar(200) COLLATE Chinese_PRC_CI_AS  NOT NULL,
-  [TRIGGER_GROUP] nvarchar(200) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [TRIGGER_NAME] nvarchar(150) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [TRIGGER_GROUP] nvarchar(150) COLLATE Chinese_PRC_CI_AS  NOT NULL,
   [BLOB_DATA] varbinary(max)  NULL
 )
 
@@ -26,7 +26,7 @@ IF EXISTS (SELECT * FROM sys.all_objects WHERE object_id = OBJECT_ID(N'[dbo].[QR
 
 CREATE TABLE [dbo].[QRTZ_CALENDARS] (
   [SCHED_NAME] nvarchar(120) COLLATE Chinese_PRC_CI_AS  NOT NULL,
-  [CALENDAR_NAME] nvarchar(200) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [CALENDAR_NAME] nvarchar(150) COLLATE Chinese_PRC_CI_AS  NOT NULL,
   [CALENDAR] varbinary(max)  NOT NULL
 )
 
@@ -44,9 +44,9 @@ IF EXISTS (SELECT * FROM sys.all_objects WHERE object_id = OBJECT_ID(N'[dbo].[QR
 
 CREATE TABLE [dbo].[QRTZ_CRON_TRIGGERS] (
   [SCHED_NAME] nvarchar(120) COLLATE Chinese_PRC_CI_AS  NOT NULL,
-  [TRIGGER_NAME] nvarchar(200) COLLATE Chinese_PRC_CI_AS  NOT NULL,
-  [TRIGGER_GROUP] nvarchar(200) COLLATE Chinese_PRC_CI_AS  NOT NULL,
-  [CRON_EXPRESSION] nvarchar(200) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [TRIGGER_NAME] nvarchar(150) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [TRIGGER_GROUP] nvarchar(150) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [CRON_EXPRESSION] nvarchar(150) COLLATE Chinese_PRC_CI_AS  NOT NULL,
   [TIME_ZONE_ID] nvarchar(80) COLLATE Chinese_PRC_CI_AS  NULL
 )
 
@@ -65,15 +65,15 @@ IF EXISTS (SELECT * FROM sys.all_objects WHERE object_id = OBJECT_ID(N'[dbo].[QR
 CREATE TABLE [dbo].[QRTZ_FIRED_TRIGGERS] (
   [SCHED_NAME] nvarchar(120) COLLATE Chinese_PRC_CI_AS  NOT NULL,
   [ENTRY_ID] nvarchar(95) COLLATE Chinese_PRC_CI_AS  NOT NULL,
-  [TRIGGER_NAME] nvarchar(200) COLLATE Chinese_PRC_CI_AS  NOT NULL,
-  [TRIGGER_GROUP] nvarchar(200) COLLATE Chinese_PRC_CI_AS  NOT NULL,
-  [INSTANCE_NAME] nvarchar(200) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [TRIGGER_NAME] nvarchar(150) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [TRIGGER_GROUP] nvarchar(150) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [INSTANCE_NAME] nvarchar(150) COLLATE Chinese_PRC_CI_AS  NOT NULL,
   [FIRED_TIME] bigint  NOT NULL,
   [SCHED_TIME] bigint  NOT NULL,
   [PRIORITY] int  NOT NULL,
   [STATE] nvarchar(16) COLLATE Chinese_PRC_CI_AS  NOT NULL,
-  [JOB_NAME] nvarchar(200) COLLATE Chinese_PRC_CI_AS  NULL,
-  [JOB_GROUP] nvarchar(200) COLLATE Chinese_PRC_CI_AS  NULL,
+  [JOB_NAME] nvarchar(150) COLLATE Chinese_PRC_CI_AS  NULL,
+  [JOB_GROUP] nvarchar(150) COLLATE Chinese_PRC_CI_AS  NULL,
   [IS_NONCONCURRENT] nvarchar(1) COLLATE Chinese_PRC_CI_AS  NULL,
   [REQUESTS_RECOVERY] nvarchar(1) COLLATE Chinese_PRC_CI_AS  NULL
 )
@@ -92,8 +92,8 @@ IF EXISTS (SELECT * FROM sys.all_objects WHERE object_id = OBJECT_ID(N'[dbo].[QR
 
 CREATE TABLE [dbo].[QRTZ_JOB_DETAILS] (
   [SCHED_NAME] nvarchar(120) COLLATE Chinese_PRC_CI_AS  NOT NULL,
-  [JOB_NAME] nvarchar(200) COLLATE Chinese_PRC_CI_AS  NOT NULL,
-  [JOB_GROUP] nvarchar(200) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [JOB_NAME] nvarchar(150) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [JOB_GROUP] nvarchar(150) COLLATE Chinese_PRC_CI_AS  NOT NULL,
   [DESCRIPTION] nvarchar(250) COLLATE Chinese_PRC_CI_AS  NULL,
   [JOB_CLASS_NAME] nvarchar(250) COLLATE Chinese_PRC_CI_AS  NOT NULL,
   [IS_DURABLE] nvarchar(1) COLLATE Chinese_PRC_CI_AS  NOT NULL,
@@ -134,7 +134,7 @@ IF EXISTS (SELECT * FROM sys.all_objects WHERE object_id = OBJECT_ID(N'[dbo].[QR
 
 CREATE TABLE [dbo].[QRTZ_PAUSED_TRIGGER_GRPS] (
   [SCHED_NAME] nvarchar(120) COLLATE Chinese_PRC_CI_AS  NOT NULL,
-  [TRIGGER_GROUP] nvarchar(200) COLLATE Chinese_PRC_CI_AS  NOT NULL
+  [TRIGGER_GROUP] nvarchar(150) COLLATE Chinese_PRC_CI_AS  NOT NULL
 )
 
 
@@ -151,7 +151,7 @@ IF EXISTS (SELECT * FROM sys.all_objects WHERE object_id = OBJECT_ID(N'[dbo].[QR
 
 CREATE TABLE [dbo].[QRTZ_SCHEDULER_STATE] (
   [SCHED_NAME] nvarchar(120) COLLATE Chinese_PRC_CI_AS  NOT NULL,
-  [INSTANCE_NAME] nvarchar(200) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [INSTANCE_NAME] nvarchar(150) COLLATE Chinese_PRC_CI_AS  NOT NULL,
   [LAST_CHECKIN_TIME] bigint  NOT NULL,
   [CHECKIN_INTERVAL] bigint  NOT NULL
 )
@@ -170,8 +170,8 @@ IF EXISTS (SELECT * FROM sys.all_objects WHERE object_id = OBJECT_ID(N'[dbo].[QR
 
 CREATE TABLE [dbo].[QRTZ_SIMPLE_TRIGGERS] (
   [SCHED_NAME] nvarchar(120) COLLATE Chinese_PRC_CI_AS  NOT NULL,
-  [TRIGGER_NAME] nvarchar(200) COLLATE Chinese_PRC_CI_AS  NOT NULL,
-  [TRIGGER_GROUP] nvarchar(200) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [TRIGGER_NAME] nvarchar(150) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [TRIGGER_GROUP] nvarchar(150) COLLATE Chinese_PRC_CI_AS  NOT NULL,
   [REPEAT_COUNT] bigint  NOT NULL,
   [REPEAT_INTERVAL] bigint  NOT NULL,
   [TIMES_TRIGGERED] bigint  NOT NULL
@@ -191,8 +191,8 @@ IF EXISTS (SELECT * FROM sys.all_objects WHERE object_id = OBJECT_ID(N'[dbo].[QR
 
 CREATE TABLE [dbo].[QRTZ_SIMPROP_TRIGGERS] (
   [SCHED_NAME] nvarchar(120) COLLATE Chinese_PRC_CI_AS  NOT NULL,
-  [TRIGGER_NAME] nvarchar(200) COLLATE Chinese_PRC_CI_AS  NOT NULL,
-  [TRIGGER_GROUP] nvarchar(200) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [TRIGGER_NAME] nvarchar(150) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [TRIGGER_GROUP] nvarchar(150) COLLATE Chinese_PRC_CI_AS  NOT NULL,
   [STR_PROP_1] nvarchar(512) COLLATE Chinese_PRC_CI_AS  NULL,
   [STR_PROP_2] nvarchar(512) COLLATE Chinese_PRC_CI_AS  NULL,
   [STR_PROP_3] nvarchar(512) COLLATE Chinese_PRC_CI_AS  NULL,
@@ -220,10 +220,10 @@ IF EXISTS (SELECT * FROM sys.all_objects WHERE object_id = OBJECT_ID(N'[dbo].[QR
 
 CREATE TABLE [dbo].[QRTZ_TRIGGERS] (
   [SCHED_NAME] nvarchar(120) COLLATE Chinese_PRC_CI_AS  NOT NULL,
-  [TRIGGER_NAME] nvarchar(200) COLLATE Chinese_PRC_CI_AS  NOT NULL,
-  [TRIGGER_GROUP] nvarchar(200) COLLATE Chinese_PRC_CI_AS  NOT NULL,
-  [JOB_NAME] nvarchar(200) COLLATE Chinese_PRC_CI_AS  NOT NULL,
-  [JOB_GROUP] nvarchar(200) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [TRIGGER_NAME] nvarchar(150) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [TRIGGER_GROUP] nvarchar(150) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [JOB_NAME] nvarchar(150) COLLATE Chinese_PRC_CI_AS  NOT NULL,
+  [JOB_GROUP] nvarchar(150) COLLATE Chinese_PRC_CI_AS  NOT NULL,
   [DESCRIPTION] nvarchar(250) COLLATE Chinese_PRC_CI_AS  NULL,
   [NEXT_FIRE_TIME] bigint  NULL,
   [PREV_FIRE_TIME] bigint  NULL,
@@ -232,7 +232,7 @@ CREATE TABLE [dbo].[QRTZ_TRIGGERS] (
   [TRIGGER_TYPE] nvarchar(8) COLLATE Chinese_PRC_CI_AS  NOT NULL,
   [START_TIME] bigint  NOT NULL,
   [END_TIME] bigint  NULL,
-  [CALENDAR_NAME] nvarchar(200) COLLATE Chinese_PRC_CI_AS  NULL,
+  [CALENDAR_NAME] nvarchar(150) COLLATE Chinese_PRC_CI_AS  NULL,
   [MISFIRE_INSTR] smallint  NULL,
   [JOB_DATA] varbinary(max)  NULL
 )
